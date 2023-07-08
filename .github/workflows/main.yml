@@ -11,21 +11,38 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Build Docker image
+        run: |
+          docker build -t burlive .
+      - name: Push Docker image to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker tag burlive:latest ${{ secrets.DOCKER_USERNAME }}/burlive:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/burlive:latest
   deploy:
     needs: build
     runs-on: ubuntu-latest
-
     steps:
-      - name: Update code on server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.REMOTE_HOST }}
-          username: ${{ secrets.REMOTE_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            lsof -i :5000 | awk 'NR!=1 {print $2}' | xargs kill -9
-            cd /opt/burlive
-            git restore .
-            git pull
-            npx tsc -p tsconfig.json
-            nohup node dist/index.js > output.log 2>&1 & disown
+    - name: Deploy to remote server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.REMOTE_HOST }}
+        username: ${{ secrets.REMOTE_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/burlive:latest
+          docker stop burlive || true
+          docker rm burlive || true
+          docker rmi ${{ secrets.DOCKER_USERNAME }}/burlive:current || true
+          docker tag ${{ secrets.DOCKER_USERNAME }}/burlive:latest ${{ secrets.DOCKER_USERNAME }}/burlive:current
+          docker run -d --name burlive -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/burlive:current
+    - name: Update code on server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.REMOTE_HOST }}
+        username: ${{ secrets.REMOTE_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          cd /var/www/pro
+          git pull
+
