@@ -13,16 +13,9 @@ const app = express();
 export const secretPath = `/telegraf/secret_path`;
 app.use(bodyParser.json());
 
-
-// Handle POST request to '/bot'
 app.post(`/telegraf/secret_path`, (req, res) => {
     bot.handleUpdate(req.body, res);
 });
-
-console.log(process.env.mode?.replace(/"/g, ''))
-console.log(process.env.mode?.replace(/"/g, '') === 'production')
-console.log(typeof (process.env.mode?.replace(/"/g, '')))
-
 
 app.get("/", (req, res) => res.send("Бот запущен!"))
 
@@ -89,9 +82,7 @@ app.get('/success', async (req, res) => {
 
 app.use(morgan("dev"));
 app.use(cors());
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => { console.log(`Server running on port ${PORT}`) });
 
 const fetchData = async () => {
     const { default: fetch } = await import('node-fetch');

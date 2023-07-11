@@ -9,8 +9,6 @@ const home = new Scenes.WizardScene("home", handler, async (ctx: rlhubContext) =
 
 export async function greeting (ctx: rlhubContext) {
 
-    console.log(ctx.update.message)
-
     const extra: ExtraEditMessageText = {
         parse_mode: 'HTML',
         reply_markup: {

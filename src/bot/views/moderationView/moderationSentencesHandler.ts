@@ -54,7 +54,9 @@ export async function updateSentence(ctx: rlhubContext, value: 'accepted' | 'dec
     }).catch(err => {
         console.log(err)
     })
+
     await moderation_sentences(ctx)
+
 }
 
 export async function moderation_sentences(ctx: rlhubContext) {

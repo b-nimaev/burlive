@@ -75,7 +75,7 @@ const stage: any = new Scenes.Stage<rlhubContext>([home, chat, vocabular, senten
     } catch (err) {
         console.error(err)
     }
-})
+})();
 
 home.command('chat', async (ctx: rlhubContext) => { await ctx.scene.enter('chatgpt') })
 chat.command('chat', async (ctx: rlhubContext) => { await ctx.scene.enter('chatgpt') })
