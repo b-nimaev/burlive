@@ -39,7 +39,23 @@ const telegraf_1 = require("telegraf");
 const greeting_1 = __importDefault(require("./settingsView/greeting"));
 const date_of_birth_1 = __importStar(require("./settingsView/date_of_birth"));
 const handler = new telegraf_1.Composer();
-const settings = new telegraf_1.Scenes.WizardScene("settings", handler, (ctx) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, date_of_birth_1.default)(ctx); }));
+const settings = new telegraf_1.Scenes.WizardScene("settings", handler, (ctx) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, date_of_birth_1.default)(ctx); }), (ctx) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, date_of_birth_1.date_birth_get_years_handler)(ctx); }), (ctx) => __awaiter(void 0, void 0, void 0, function* () { return yield select_year(ctx); }));
+function select_year(ctx) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            if (ctx.updateType === 'callback_query') {
+                ctx.answerCbQuery(ctx.update.callback_query.data);
+                if (ctx.update.callback_query.data === 'back') {
+                    yield (0, date_of_birth_1.date_birth_get_years)(ctx);
+                    ctx.wizard.selectStep(2);
+                }
+            }
+        }
+        catch (error) {
+            console.error(error);
+        }
+    });
+}
 settings.enter((ctx) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, greeting_1.default)(ctx); }));
 handler.on("message", (ctx) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, greeting_1.default)(ctx); }));
 handler.action("back", (ctx) => __awaiter(void 0, void 0, void 0, function* () {

@@ -34,7 +34,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.secretPath = void 0;
 const express_1 = __importDefault(require("express"));
@@ -49,13 +48,9 @@ const PORT = process.env.PORT;
 const app = (0, express_1.default)();
 exports.secretPath = `/telegraf/secret_path`;
 app.use(body_parser_1.default.json());
-// Handle POST request to '/bot'
 app.post(`/telegraf/secret_path`, (req, res) => {
     index_1.bot.handleUpdate(req.body, res);
 });
-console.log((_a = process.env.mode) === null || _a === void 0 ? void 0 : _a.replace(/"/g, ''));
-console.log(((_b = process.env.mode) === null || _b === void 0 ? void 0 : _b.replace(/"/g, '')) === 'production');
-console.log(typeof ((_c = process.env.mode) === null || _c === void 0 ? void 0 : _c.replace(/"/g, '')));
 app.get("/", (req, res) => res.send("Бот запущен!"));
 app.get('/success', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -107,9 +102,7 @@ app.get('/success', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 }));
 app.use(morgan("dev"));
 app.use((0, cors_1.default)());
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => { console.log(`Server running on port ${PORT}`); });
 const fetchData = () => __awaiter(void 0, void 0, void 0, function* () {
     const { default: fetch } = yield Promise.resolve().then(() => __importStar(require('node-fetch')));
     const res = yield fetch('http://localhost:4040/api/tunnels');

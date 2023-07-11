@@ -35,7 +35,9 @@ export async function greeting (ctx: rlhubContext) {
         ctx.updateType === 'callback_query' ? await ctx.editMessageText(message, extra) : ctx.reply(message,extra)
 
     } catch (err) {
+    
         console.log(err)
+    
     }
 }
 
@@ -246,8 +248,10 @@ async function add_sentences_handler (ctx: rlhubContext) {
 
 // home.on("message", async (ctx) => await greeting (ctx))
 home.action(/\./, async (ctx) => {
+    
     console.log(ctx)
     await greeting(ctx)
+
 })
 export default home
 export { add_sentences_handler }

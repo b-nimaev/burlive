@@ -42,6 +42,9 @@ export default async function greeting(ctx: rlhubContext) {
                 message = `<b>Настройки</b> \n\nИмя пользователя: <b>${ctx.from?.id}</b>`
             }
         }
+        message += `\nДата рождения: 07.08.2000`
+        message += `\nЯзык интерфейса: Русский`
+        message += `\n\nДата регистрации: 01.01.1990`
 
         ctx.updateType === 'message' ? await ctx.reply(message, extra) : false
         ctx.updateType === 'callback_query' ? await ctx.editMessageText(message, extra) : false

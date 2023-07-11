@@ -131,6 +131,54 @@ function moderation_sentences_handler(ctx) {
     });
 }
 moderation.action("moderation_translates", (ctx) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, moderationTranslates_1.default)(ctx); }));
+function updateRating(translation) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let votes = translation.votes;
+        let rating = 0;
+        if (votes) {
+            let pluses = 0;
+            let minuses = 0;
+            for (let i = 0; i < votes.length; i++) {
+                let voteDocument = yield ISentence_1.voteModel.findById(votes[i]);
+                if (voteDocument) {
+                    if (voteDocument.vote === true) {
+                        pluses = pluses + 1;
+                    }
+                    else {
+                        minuses = minuses + 1;
+                    }
+                }
+            }
+            console.log(`pluses: ${pluses}`);
+            console.log(`minuses: ${minuses}`);
+            rating = pluses - minuses;
+            // console.log(rating)
+            return rating;
+        }
+        // console.log(rating)
+    });
+}
+function ratingHandler(translation) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (translation) {
+            let rating = yield updateRating(translation);
+            if (rating) {
+                // @ts-ignore
+                yield ISentence_1.Translation.findByIdAndUpdate(translation._id, {
+                    $set: {
+                        rating: rating
+                    }
+                }).then((newtranslation) => __awaiter(this, void 0, void 0, function* () {
+                    // @ts-ignore
+                    if (rating >= 3) {
+                        yield new ISentence_1.ConfirmedTranslations(newtranslation === null || newtranslation === void 0 ? void 0 : newtranslation.toObject()).save();
+                        yield ISentence_1.Translation.findByIdAndDelete(newtranslation === null || newtranslation === void 0 ? void 0 : newtranslation._id);
+                    }
+                }));
+            }
+        }
+    });
+}
 // обрабатываем голос
 function moderation_translates_handler(ctx) {
     var _a;
@@ -140,27 +188,42 @@ function moderation_translates_handler(ctx) {
             let data = ctx.update.callback_query.data;
             let translate_id = ctx.scene.session.current_translation_for_vote;
             let user = yield IUser_1.User.findOne({ id: (_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id });
-            if (data === 'good') {
-                // Сохраняем голос +
-                yield new ISentence_1.voteModel({ user_id: user === null || user === void 0 ? void 0 : user._id, translation_id: translate_id, vote: true }).save().then((data) => __awaiter(this, void 0, void 0, function* () {
-                    // Возвращаем _id сохранненого голоса
-                    let vote_id = data._id;
-                    // пушим в массив голосов докумена перевода
-                    yield ISentence_1.Translation.findOneAndUpdate({ _id: translate_id }, { $push: { votes: vote_id } });
-                    yield IUser_1.User.findOneAndUpdate({ _id: user === null || user === void 0 ? void 0 : user._id }, { $addToSet: { voted_translations: translate_id } });
-                }));
-                yield (0, moderationTranslates_1.render_vote_sentence)(ctx);
+            if (user) {
+                if (data === 'good') {
+                    // Сохраняем голос +
+                    yield new ISentence_1.voteModel({ user_id: user === null || user === void 0 ? void 0 : user._id, translation_id: translate_id, vote: true }).save().then((data) => __awaiter(this, void 0, void 0, function* () {
+                        // Возвращаем _id сохранненого голоса
+                        let vote_id = data._id;
+                        // пушим в массив голосов докумена перевода
+                        yield ISentence_1.Translation.findOneAndUpdate({ _id: translate_id }, { $push: { votes: vote_id } })
+                            .then((translation) => __awaiter(this, void 0, void 0, function* () { return yield ratingHandler(translation); }));
+                        yield IUser_1.User.findOneAndUpdate({ _id: user === null || user === void 0 ? void 0 : user._id }, { $addToSet: { voted_translations: translate_id } });
+                    }));
+                    yield (0, moderationTranslates_1.render_vote_sentence)(ctx);
+                }
+                else if (data === 'bad') {
+                    // сохраняем голос -
+                    yield new ISentence_1.voteModel({ user_id: user === null || user === void 0 ? void 0 : user._id, translation_id: translate_id, vote: false }).save().then((data) => __awaiter(this, void 0, void 0, function* () {
+                        // вернули айдишку
+                        let vote_id = data._id;
+                        yield IUser_1.User.findOneAndUpdate({ _id: user === null || user === void 0 ? void 0 : user._id }, { $addToSet: { voted_translations: translate_id } });
+                        // сохранили айдишку в документе перевода
+                        yield ISentence_1.Translation.findOneAndUpdate({ _id: translate_id }, { $push: { votes: vote_id } })
+                            .then((translation) => __awaiter(this, void 0, void 0, function* () { return yield ratingHandler(translation); }));
+                    }));
+                    yield (0, moderationTranslates_1.render_vote_sentence)(ctx);
+                }
+                else if (data === 'skip') {
+                    yield ISentence_1.Translation.findByIdAndUpdate(translate_id, {
+                        $push: {
+                            skipped_by: user._id
+                        }
+                    });
+                }
             }
-            else if (data === 'bad') {
-                // сохраняем голос -
-                yield new ISentence_1.voteModel({ user_id: user === null || user === void 0 ? void 0 : user._id, translation_id: translate_id, vote: false }).save().then((data) => __awaiter(this, void 0, void 0, function* () {
-                    // вернули айдишку
-                    let vote_id = data._id;
-                    // сохранили айдишку в документе перевода
-                    yield ISentence_1.Translation.findOneAndUpdate({ _id: translate_id }, { $push: { votes: vote_id } });
-                    yield IUser_1.User.findOneAndUpdate({ _id: user === null || user === void 0 ? void 0 : user._id }, { $addToSet: { voted_translations: translate_id } });
-                }));
-                yield (0, moderationTranslates_1.render_vote_sentence)(ctx);
+            else {
+                ctx.wizard.selectStep(0);
+                yield (0, greeting_1.default)(ctx);
             }
             // Если чел хочет вернутьтся на начальный экран модерации
             if (data === 'back') {
@@ -174,9 +237,7 @@ function moderation_translates_handler(ctx) {
         }
     });
 }
-moderation.action("moderation_vocabular", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    ctx.answerCbQuery('Модерация словаря в разработке');
-}));
+moderation.action("moderation_vocabular", (ctx) => __awaiter(void 0, void 0, void 0, function* () { ctx.answerCbQuery('Модерация словаря в разработке'); }));
 moderation.action("report", (ctx) => __awaiter(void 0, void 0, void 0, function* () { return yield report_section_render(ctx); }));
 function report_section_render(ctx) {
     return __awaiter(this, void 0, void 0, function* () {

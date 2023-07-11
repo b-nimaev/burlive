@@ -17,6 +17,7 @@ const moderation = new Scenes.WizardScene("moderation", handler,
     async (ctx: rlhubContext) => moderation_translates_handler(ctx),
     async (ctx: rlhubContext) => moderation_report_handler(ctx)
 )
+
 async function moderation_report_handler(ctx: rlhubContext) {
 
     try {
@@ -72,14 +73,14 @@ async function moderation_report_handler(ctx: rlhubContext) {
             }
 
         } else {
+
             await report_section_render(ctx)
+        
         }
 
         ctx.answerCbQuery()
 
-    } catch (err) {
-        console.error(err)
-    }
+    } catch (err) { console.error(err) }
 
 }
 moderation.enter(async (ctx: rlhubContext) => await greeting(ctx));
@@ -96,8 +97,10 @@ async function moderation_sentences_handler(ctx: rlhubContext) {
             let data: 'back' | 'good' | 'bad' = ctx.update.callback_query.data
 
             if (data === 'back') {
+                
                 ctx.wizard.selectStep(0)
                 await greeting(ctx)
+            
             }
 
             if (data === 'good') {
@@ -117,7 +120,9 @@ async function moderation_sentences_handler(ctx: rlhubContext) {
         }
 
     } catch (err) {
+
         console.log(err)
+    
     }
 }
 
@@ -259,10 +264,7 @@ async function moderation_translates_handler(ctx: rlhubContext) {
     }
 }
 
-moderation.action("moderation_vocabular", async (ctx) => {
-    ctx.answerCbQuery('Модерация словаря в разработке')
-})
-
+moderation.action("moderation_vocabular", async (ctx) => { ctx.answerCbQuery('Модерация словаря в разработке') })
 
 moderation.action("report", async (ctx) => await report_section_render(ctx))
 

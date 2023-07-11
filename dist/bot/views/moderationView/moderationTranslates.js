@@ -8,10 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.render_vote_sentence = void 0;
 const mongodb_1 = require("mongodb");
 const ISentence_1 = require("../../../models/ISentence");
+const greeting_1 = __importDefault(require("./greeting"));
 function moderation_translates(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -28,8 +32,7 @@ function render_vote_sentence(ctx) {
         try {
             // получаем перевод и предложение которое переведено
             let translation = yield ISentence_1.Translation.aggregate([
-                { $addFields: { votesCount: { $size: "$votes" } } },
-                { $sort: { votesCount: 1 } },
+                { $sort: { rating: -1 } },
                 { $limit: 1 }
             ]).then((response) => __awaiter(this, void 0, void 0, function* () {
                 return response[0];
@@ -38,7 +41,8 @@ function render_vote_sentence(ctx) {
             }));
             if (!translation) {
                 if (ctx.updateType === 'callback_query') {
-                    return ctx.answerCbQuery('Предложений не найдено');
+                    ctx.answerCbQuery('Предложений не найдено');
+                    return yield (0, greeting_1.default)(ctx);
                 }
             }
             let sentence_russian = yield ISentence_1.Sentence.findOne({
@@ -72,7 +76,7 @@ function render_vote_sentence(ctx) {
                 plus: [],
                 minus: []
             };
-            console.log(sentence_russian);
+            // console.log(sentence_russian)
             if (translation) {
                 if (translation.votes) {
                     if (translation.votes.length) {
@@ -86,8 +90,17 @@ function render_vote_sentence(ctx) {
                                 statistic.minus.push(vote);
                             }
                         }
-                        console.log(statistic.plus.length);
-                        console.log(statistic.minus.length);
+                        let realRating = statistic.plus.length - statistic.minus.length;
+                        // @ts-ignore
+                        yield ISentence_1.Translation.findByIdAndUpdate(translation._id, {
+                            $set: {
+                                rating: realRating
+                            }
+                        });
+                        if (realRating == 3) {
+                            yield new ISentence_1.ConfirmedTranslations(translation).save();
+                            yield ISentence_1.Translation.findByIdAndDelete(translation === null || translation === void 0 ? void 0 : translation._id);
+                        }
                         // message += `\n\nКоличество голосов: <pre>15+, 2-</pre>`
                     }
                 }

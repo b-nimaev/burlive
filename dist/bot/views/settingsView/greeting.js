@@ -49,6 +49,9 @@ function greeting(ctx) {
                     message = `<b>Настройки</b> \n\nИмя пользователя: <b>${(_c = ctx.from) === null || _c === void 0 ? void 0 : _c.id}</b>`;
                 }
             }
+            message += `\nДата рождения: 07.08.2000`;
+            message += `\nЯзык интерфейса: Русский`;
+            message += `\n\nДата регистрации: 01.01.1990`;
             ctx.updateType === 'message' ? yield ctx.reply(message, extra) : false;
             ctx.updateType === 'callback_query' ? yield ctx.editMessageText(message, extra) : false;
         }

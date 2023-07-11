@@ -17,7 +17,6 @@ const handler = new telegraf_1.Composer();
 const home = new telegraf_1.Scenes.WizardScene("home", handler, (ctx) => __awaiter(void 0, void 0, void 0, function* () { return yield add_sentences_handler(ctx); }));
 function greeting(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log(ctx.update.message);
         const extra = {
             parse_mode: 'HTML',
             reply_markup: {
@@ -217,7 +216,7 @@ function add_sentences_handler(ctx) {
     });
 }
 exports.add_sentences_handler = add_sentences_handler;
-home.on("message", (ctx) => __awaiter(void 0, void 0, void 0, function* () { return yield greeting(ctx); }));
+// home.on("message", async (ctx) => await greeting (ctx))
 home.action(/\./, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(ctx);
     yield greeting(ctx);

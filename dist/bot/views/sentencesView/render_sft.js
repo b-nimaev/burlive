@@ -197,7 +197,8 @@ function add_translate_to_sentences_hander(ctx) {
                         let translation = {
                             sentence_russian: ctx.scene.session.sentence_id,
                             translate_text: text,
-                            author: user_id
+                            author: user_id,
+                            rating: 0
                         };
                         console.log(ctx.scene.session.active_translation);
                         new ISentence_1.Translation(translation).save().then((document) => __awaiter(this, void 0, void 0, function* () {

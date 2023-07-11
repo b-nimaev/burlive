@@ -18,9 +18,7 @@ function greeting(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             if (ctx.from) {
-                console.log(yield IUser_1.User.find());
                 let user = yield IUser_1.User.findOne({ id: ctx.from.id });
-                console.log(user);
                 if (user) {
                     const extra = {
                         parse_mode: 'HTML',

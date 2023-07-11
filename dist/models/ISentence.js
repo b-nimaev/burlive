@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ActiveTranslator = exports.Translation = exports.Sentence = exports.voteModel = void 0;
+exports.ConfirmedTranslations = exports.ActiveTranslator = exports.Translation = exports.Sentence = exports.voteModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const voteSchema = new mongoose_1.default.Schema({
     user_id: { type: mongoose_1.default.Schema.Types.ObjectId, required: true },
@@ -38,12 +38,15 @@ const translationSchema = new mongoose_1.default.Schema({
     translate_text: { type: String, required: true },
     author: { type: Number, required: true },
     votes: { type: [mongoose_1.default.Schema.Types.ObjectId], required: false },
+    rating: { type: Number, required: false },
     skipped_by: { type: [mongoose_1.default.Schema.Types.ObjectId], required: false }
 }, {
     timestamps: true
 });
 const Translation = (0, mongoose_1.model)("Translation", translationSchema);
 exports.Translation = Translation;
+const ConfirmedTranslations = (0, mongoose_1.model)("Translatios_confirmed", translationSchema);
+exports.ConfirmedTranslations = ConfirmedTranslations;
 const ActiveTranslator = (0, mongoose_1.model)("Active_translator", new mongoose_1.Schema({
     user_id: { type: mongoose_1.default.Schema.Types.ObjectId, required: true }
 }, {
