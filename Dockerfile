@@ -23,6 +23,4 @@ WORKDIR /app
 
 COPY --from=build-stage /app ./
 
-EXPOSE 3000
-
-CMD [ "npm", "start" ]
+CMD [ "node", "dist" ]
