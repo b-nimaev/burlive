@@ -17,6 +17,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: compile
+        run: npm install
+
+      - name: compile
         run: npx tsc --p tsconfig.json
 
       - name: run
