@@ -11,7 +11,8 @@ export default async function greeting(ctx: rlhubContext) {
             parse_mode: 'HTML',
             reply_markup: {
                 inline_keyboard: [
-                    [{ text: 'Новый диалог', callback_data: 'new_chat' }],
+                    [{ text: 'Начать диалог', callback_data: 'new_chat' }],
+                    [{ text: 'Мои диалоги', callback_data: 'list' }],
                     [{ text: 'Назад', callback_data: 'home' }]
                 ]
             }

@@ -1,8 +1,8 @@
 import { IChat, ChatModel } from "../../../models/IChat"
 import { User } from "../../../models/IUser"
 import rlhubContext from "../../models/rlhubContext"
-
-export default async function create_new_chat(ctx: rlhubContext) {
+  
+export default async function create_new_chat_handler(ctx: rlhubContext) {
     try {
 
         if (ctx.updateType === 'callback_query') {
