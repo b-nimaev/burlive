@@ -25,9 +25,9 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Kill existing process on port 5000
-        run: |
-          sudo lsof -t -i:5000 | xargs -I{} sudo kill -9 {}
+      # - name: Kill existing process on port 5000
+        # run: |
+          # sudo lsof -t -i:5000 | xargs -I{} sudo kill -9 {}
 
 
       - name: Deploy to remote server
