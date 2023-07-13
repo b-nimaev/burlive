@@ -54,7 +54,8 @@ jobs:
           docker rm burlive || true
           docker rmi ${{ secrets.DOCKER_USERNAME }}/burlive:current || true
           docker tag ${{ secrets.DOCKER_USERNAME }}/burlive:latest ${{ secrets.DOCKER_USERNAME }}/burlive:current
-          docker run -d --name burlive -p 5000:5000 --env-file /opt/burlive/.env ${{ secrets.DOCKER_USERNAME }}/burlive:current
+          docker run burlive
+          # docker run -d --name burlive -p 5000:5000 --env-file /opt/burlive/.env ${{ secrets.DOCKER_USERNAME }}/burlive:current
           
     - name: Update code on server
       uses: appleboy/ssh-action@master
